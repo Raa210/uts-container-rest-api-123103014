@@ -1,52 +1,70 @@
-# Simple Node with Express Server with REST API
+# UTS Container REST API - NIM
 
-[![Build Status](https://travis-ci.org/rwieruch/node-express-server-rest-api.svg?branch=master)](https://travis-ci.org/rwieruch/node-express-server-rest-api) [![Slack](https://slack-the-road-to-learn-react.wieruch.com/badge.svg)](https://slack-the-road-to-learn-react.wieruch.com/) [![Greenkeeper badge](https://badges.greenkeeper.io/rwieruch/node-express-server-rest-api.svg)](https://greenkeeper.io/)
+REST API Node.js + Express (sumber: https://github.com/rwieruch/node-express-server-rest-api)
+dijalankan di dalam container Docker pada port 3000.
 
-An easy way to get started with a Express server offering a REST API with Node.js. [Read more about it.](https://www.robinwieruch.de/node-express-server-rest-api)
+## Prasyarat
 
-## Features
+- Docker terpasang dan berjalan
 
-- Express
-- REST API
+## Build Container
 
-## Requirements
+```bash
+docker build -t uts-rest-api .
+```
 
-- [node & npm](https://nodejs.org/en/)
-- [git](https://www.robinwieruch.de/git-essential-commands/)
+## Run Container
 
-## Installation
+```bash
+docker run -d --name rest-api -p 3000:3000 uts-rest-api
+```
 
-- `git clone git@github.com:rwieruch/node-express-server-rest-api.git`
-- `cd node-express-server-rest-api`
-- `npm install`
-- `npm start`
-- optional: include _.env_ in your _.gitignore_
+Menghentikan dan menghapus container:
 
-### GET Routes
+```bash
+docker rm -f rest-api
+```
 
-- visit http://localhost:3000
-  - /messages
-  - /messages/1
-  - /users
-  - /users/1
+## Menguji REST API
 
-### Beyond GET Routes
+### Dari luar container (Windows PowerShell)
 
-#### CURL
+```powershell
+Invoke-RestMethod http://localhost:3000/messages
+Invoke-RestMethod http://localhost:3000/users
+Invoke-RestMethod -Method POST -Uri http://localhost:3000/messages -ContentType "application/json" -Body '{"text":"Hi again, World"}'
+Invoke-RestMethod http://localhost:3000/messages
+Invoke-RestMethod -Method DELETE -Uri http://localhost:3000/messages/1
+Invoke-RestMethod http://localhost:3000/messages
+```
 
-- Create a message with:
-  - `curl -X POST -H "Content-Type:application/json" http://localhost:3000/messages -d '{"text":"Hi again, World"}'`
-- Delete a message with:
-  - `curl -X DELETE -H "Content-Type:application/json" http://localhost:3000/messages/1`
+### Dari luar container (Linux / Mac / Git Bash)
 
-#### Postman
+```bash
+curl http://localhost:3000/messages
+curl http://localhost:3000/users
+curl -X POST -H "Content-Type: application/json" -d '{"text":"Hi again, World"}' http://localhost:3000/messages
+curl http://localhost:3000/messages
+curl -X DELETE http://localhost:3000/messages/1
+```
 
-- Install [Postman](https://www.getpostman.com/apps) to interact with REST API
-- Create a message with:
-  - URL: http://localhost:3000/messages
-  - Method: POST
-  - Body: raw + JSON (application/json)
-  - Body Content: `{ "text": "Hi again, World" }`
-- Delete a message with:
-  - URL: http://localhost:3000/messages/1
-  - Method: DELETE
+Atau lewat browser: http://localhost:3000/messages
+
+### Dari dalam container
+
+```bash
+docker exec -it rest-api sh
+wget -qO- http://localhost:3000/messages
+exit
+```
+
+## Endpoint
+
+| Method | Path          | Fungsi       |
+| ------ | ------------- | ------------ |
+| GET    | /messages     | daftar pesan |
+| GET    | /messages/:id | detail pesan |
+| POST   | /messages     | buat pesan   |
+| DELETE | /messages/:id | hapus pesan  |
+| GET    | /users        | daftar user  |
+| GET    | /users/:id    | detail user  |
